@@ -43,20 +43,20 @@ export default class RandomChar extends Component {
     onError = (err) => {
         this.setState({
             error: true,
-            loading: false
+            loading: false,
         });
     }
 
 	updateChar() {
-		// const id = Math.floor(Math.random() * 140 + 25) // 25 - 140
-		const id = 1300000
+		const id = Math.floor(Math.random() * 140 + 25) // 25 - 140
+		// const id = 1300000
 		this.gotService.getCharacter(id)
 			.then(this.onCharLoaded)
 			.catch(this.onError)
 	}
 
 	render() {
-		const {	char, loading, error} = this.state
+		const {	char, loading, error } = this.state
 
 		const errorMessage = error ? <ErrorMessage/> : null
 		const spinner = loading ? <Spinner/> : null
