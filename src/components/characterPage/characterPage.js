@@ -1,43 +1,54 @@
-import React, {Component} from 'react';
-import {Col, Row, Container} from 'reactstrap';
-import ItemList from '../itemList';
-import CharDetails from '../charDetails';
-import ErrorMessage from '../errorMessage'
+import React, { Component } from 'react'
+import ItemList from '../itemList'
+import CharDetails, {Field} from '../charDetails'
+import ErrorMessage from '../error'
+import gotService from '../../services/gotService'
+import RowBlock from '../RowBlock'
 
 export default class CharacterPage extends Component {
+	gotService = new gotService()
 
-    state = {
-        selectedChar: 130,
-        error: false
-    }
+	state = {
+		selectedChar: 130,
+		error: false
+	}
 
-    onCharSelected = (id) => {
-        this.setState({
-            selectedChar: id
-        })
-    }
+	onItemSelected = (id) => {
+		this.setState({
+			selectedChar: id
+		})
+	}
 
-    componentDidCatch() {
-        this.setState({
-            error: true
-        })
-    }
+	componentDidCatch() {
+		this.setState({
+			error: true
+		})
+	}
 
-    render() {
+	render() {
+		if (this.state.error) {
+			return <ErrorMessage />
+		}
 
-        if(this.state.error) {
-            return <ErrorMessage/>
-        }
-
-        return (
-            <Row>
-                <Col md='6'>
-                    <ItemList onCharSelected={this.onCharSelected}/>
-                </Col>
-                <Col md='6'>
-                    <CharDetails charId = {this.state.selectedChar} />
-                </Col>
-            </Row>
+        const itemList = (
+            <ItemList
+            onItemSelected={this.onItemSelected}
+            getData={this.gotService.getAllCharacters}
+            renderItem={({name, gender}) => `${name} (${gender})`}
+        />
         )
-    }
+
+        const charDetails = (
+            <CharDetails charId={this.state.selectedChar}>
+                <Field field='gender' label='Gender'/>
+                <Field field='born' label='Born'/>
+            </CharDetails>
+        )
+
+		return (
+            <RowBlock 
+                left={itemList}
+                right={charDetails}/>
+		)
+	}
 }
