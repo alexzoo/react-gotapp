@@ -1,7 +1,5 @@
-import React from 'react'
-import { Col, Row} from 'reactstrap'
-
-
+import React from 'react';
+import {Col, Row} from 'reactstrap';
 
 const RowBlock = ({left, right}) => {
     return (
@@ -15,4 +13,5 @@ const RowBlock = ({left, right}) => {
         </Row>
     )
 }
-export default RowBlock
+
+export default RowBlock;
