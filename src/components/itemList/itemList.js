@@ -1,72 +1,64 @@
-import React, {Component} from 'react';
-import './itemList.css';
-import Spinner from '../spinner';
+import React, { Component } from 'react'
+import './itemList.css'
+import Spinner from '../spinner'
 import PropTypes from 'prop-types'
+import gotService from '../../services/gotService'
 
-export default class ItemList extends Component {
+const ItemList = (props) => {
+	const renderItems = (arr) => {
+		return arr.map((item) => {
+			const { id } = item
 
-    state = {
-        itemList: null
-    }
+			const label = props.renderItem(item)
 
-    static defaultProps = {
-        onItemSelected: () => {}
-    }
-    
-    static propTypes = {
-        onItemSelected: PropTypes.func
-    }
+			return (
+				<li
+					key={id}
+					className='list-group-item'
+					onClick={() => props.onItemSelected(id)}>
+					{label}
+				</li>
+			)
+		})
+	}
+	const { data } = props
+	const items = renderItems(data)
 
-    componentDidMount() {
-        const {getData} = this.props;
-
-        getData()
-            .then( (itemList) => {
-                this.setState({
-                    itemList
-                })
-            })
-    }
-
-    renderItems(arr) {
-        return arr.map((item) => {
-            const {id} = item;
-
-            const label = this.props.renderItem(item);
-
-            return (
-                <li 
-                    key={id}
-                    className="list-group-item"
-                    onClick={ () => this.props.onItemSelected(id)}>
-                    {label}
-                </li>
-            )
-        })
-    }
-
-    render() {
-        const {itemList} = this.state;
-
-        if (!itemList) {
-            return <Spinner/>
-        }
-
-        const items = this.renderItems(itemList);
-
-
-        return (
-            <ul className="item-list list-group">
-                {items}
-            </ul>
-        );
-    }
+	return <ul className='item-list list-group'>{items}</ul>
 }
 
 ItemList.defaultProps = {
-    onItemSelected: () => {}
+	onItemSelected: () => {}
 }
 
 ItemList.propTypes = {
-    onItemSelected: PropTypes.func
+	onItemSelected: PropTypes.func
 }
+
+const withData = (View, getData) => {
+	return class extends Component {
+		state = {
+			data: null
+		}
+
+		componentDidMount() {
+			getData().then((data) => {
+				this.setState({
+					data
+				})
+			})
+		}
+
+		render() {
+			const { data } = this.state
+
+			if (!data) {
+				return <Spinner />
+			}
+
+			return <View {...this.props} data={data} />
+		}
+	}
+}
+const { getAllCharacters } = new gotService()
+export default withData(ItemList, getAllCharacters)
