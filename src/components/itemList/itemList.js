@@ -1,64 +1,40 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import './itemList.css'
 import Spinner from '../spinner'
-import PropTypes from 'prop-types'
-import gotService from '../../services/gotService'
 
-const ItemList = (props) => {
-	const renderItems = (arr) => {
+function ItemList({ getData, renderItem, onItemSelected }) {
+	const [itemList, updateList] = useState([])
+
+	useEffect(() => {
+		getData()
+			.then((data) => {
+			updateList(data)
+		})
+	}, [])
+
+	function renderItems(arr) {
 		return arr.map((item) => {
 			const { id } = item
 
-			const label = props.renderItem(item)
+			const label = renderItem(item)
 
 			return (
 				<li
 					key={id}
 					className='list-group-item'
-					onClick={() => props.onItemSelected(id)}>
+					onClick={() => onItemSelected(id)}>
 					{label}
 				</li>
 			)
 		})
 	}
-	const { data } = props
-	const items = renderItems(data)
+
+	if (!itemList) {
+		return <Spinner />
+	}
+
+	const items = renderItems(itemList)
 
 	return <ul className='item-list list-group'>{items}</ul>
 }
-
-ItemList.defaultProps = {
-	onItemSelected: () => {}
-}
-
-ItemList.propTypes = {
-	onItemSelected: PropTypes.func
-}
-
-const withData = (View, getData) => {
-	return class extends Component {
-		state = {
-			data: null
-		}
-
-		componentDidMount() {
-			getData().then((data) => {
-				this.setState({
-					data
-				})
-			})
-		}
-
-		render() {
-			const { data } = this.state
-
-			if (!data) {
-				return <Spinner />
-			}
-
-			return <View {...this.props} data={data} />
-		}
-	}
-}
-const { getAllCharacters } = new gotService()
-export default withData(ItemList, getAllCharacters)
+export default ItemList
